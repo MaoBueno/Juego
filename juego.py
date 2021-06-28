@@ -66,11 +66,11 @@ if __name__ == '__main__':
     f_vy=0
     f_limite_y= ALTO - f_alto
 
-    lim_derecho=ANCHO-200
-    lim_izquierdo=200
+    lim_derecho=ANCHO-40
+    lim_izquierdo=40
 
-    lim_superior=50
-    lim_inferior=ALTO-50
+    lim_superior=40
+    lim_inferior=ALTO-40
 
 
 
@@ -92,10 +92,10 @@ if __name__ == '__main__':
                 fin = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    j.velx=5
+                    j.velx=50
                     j.vely=0
                 if event.key == pygame.K_LEFT:
-                    j.velx=-5
+                    j.velx=-50
                     j.vely=0
                 if event.key == pygame.K_UP:
                     j.velx=0
@@ -111,11 +111,11 @@ if __name__ == '__main__':
         if j.rect.right > lim_derecho:
             j.rect.right = lim_derecho
             #j.velx=0
-            f_vx=-5
+            f_vx=-50
         elif j.rect.left < lim_izquierdo:
             j.rect.left = lim_izquierdo
             #j.velx=0
-            f_vx=5
+            f_vx=50
         else:
             f_vx = 0
         
@@ -164,5 +164,3 @@ if __name__ == '__main__':
         
         if f_y >= 0:
             f_y = 0
-        
-        print (f_y, f_vy, f_limite_y)
