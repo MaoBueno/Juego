@@ -53,7 +53,7 @@ class Jugador(pygame.sprite.Sprite):
 if __name__ == '__main__':
     pygame.init()
     pantalla = pygame.display.set_mode([ANCHO, ALTO])
-    fondo=pygame.image.load("fondo.png")
+    fondo=pygame.image.load("Fondo.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     lim_izquierdo=40
 
     lim_superior=40
-    lim_inferior=ALTO-40
+    lim_inferior=ALTO-60
 
 
 
@@ -92,10 +92,10 @@ if __name__ == '__main__':
                 fin = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    j.velx=50
+                    j.velx=5
                     j.vely=0
                 if event.key == pygame.K_LEFT:
-                    j.velx=-50
+                    j.velx=-5
                     j.vely=0
                 if event.key == pygame.K_UP:
                     j.velx=0
@@ -111,11 +111,11 @@ if __name__ == '__main__':
         if j.rect.right > lim_derecho:
             j.rect.right = lim_derecho
             #j.velx=0
-            f_vx=-50
+            f_vx=-5
         elif j.rect.left < lim_izquierdo:
             j.rect.left = lim_izquierdo
             #j.velx=0
-            f_vx=50
+            f_vx=5
         else:
             f_vx = 0
         
@@ -149,6 +149,8 @@ if __name__ == '__main__':
         
         pygame.display.flip()
         reloj.tick(40)
+
+        #Control del limite en x del fondo
         if f_x >= f_limite_x:
             f_x+=f_vx
         else:
@@ -157,6 +159,8 @@ if __name__ == '__main__':
         if f_x >= 0:
             f_x = 0
         
+
+        #Control del limite en y del fondo
         if f_y >= f_limite_y:
             f_y+=f_vy
         else:
