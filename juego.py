@@ -18,7 +18,6 @@ class Jugador(pygame.sprite.Sprite):
 
         self.columna=0
         self.direccion=0
-        self.salto=0
 
         self.image=self.imagen[self.direccion][self.columna]
         
@@ -30,7 +29,7 @@ class Jugador(pygame.sprite.Sprite):
 
     def update(self):
 
-        if pygame.key.get_pressed()[pygame.K_DOWN]:
+        if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.key.get_pressed()[pygame.K_LEFT] or pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_DOWN]:
             if self.columna == 0:
                 self.columna = 1
             else:
@@ -40,32 +39,8 @@ class Jugador(pygame.sprite.Sprite):
             self.columna = 0
         
         self.image=self.imagen[self.direccion][self.columna]
-        
-        if pygame.key.get_pressed()[pygame.K_UP]:
-            if self.columna == 0:
-                self.columna = 1
-            else:
-                self.columna = 0
-            self.image=self.imagen[self.direccion][self.columna]
-        else:
-            self.columna = 0
 
-        
-        
-
-        self.image=self.imagen[self.direccion][self.columna]
-
-        
-        
-        
-
-        
-        
-        ''' if self.columna == 1:
-            self.columna = 0
-        else:
-            self.columna = 1 '''
-
+        # Actualizacion de la velocidad en x
         self.rect.x += self.velx
 
         if self.rect.left < 0:     # Limite en x (izquierda)
@@ -77,8 +52,7 @@ class Jugador(pygame.sprite.Sprite):
 
 
 
-
-
+        # Actualizacion de la velocidad en y
         self.rect.y += self.vely
 
         # Limites en Y
@@ -89,7 +63,7 @@ class Jugador(pygame.sprite.Sprite):
             self.rect.bottom = ALTO
 
 
-
+# Funcion para recortar el sprite
 def Matriz_imagen(imagenes, columnas, filas):
     info=imagenes.get_rect()
     corte_ancho=info[2]/columnas
@@ -106,9 +80,7 @@ def Matriz_imagen(imagenes, columnas, filas):
 
 if __name__ == '__main__':
     pygame.init()
-    pantalla = pygame.display.set_mode([ANCHO, ALTO])
-
-    
+    pantalla = pygame.display.set_mode([ANCHO, ALTO])       # Creacion de la ventana de juego
 
 
     #Cargando el fondo
@@ -126,7 +98,7 @@ if __name__ == '__main__':
     f_limite_y= ALTO - f_alto
 
     lim_derecho=ANCHO-40
-    lim_izquierdo=40
+    lim_izquierdo=30
 
     lim_superior=40
     lim_inferior=ALTO-60
@@ -137,12 +109,9 @@ if __name__ == '__main__':
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
     
-    
-
 
     #Grupos
     jugadores = pygame.sprite.Group()
-
     j=Jugador(conejo)
     jugadores.add(j)
 
@@ -178,7 +147,7 @@ if __name__ == '__main__':
                     j.vely=-15
                     j.direccion=2
                     pantalla.blit(fondo, [f_x, f_y])
-                    pantalla.blit(conejo[j.direccion][1], [j.rect.x, j.rect.y - 8])
+                    pantalla.blit(conejo[j.direccion][1], [j.rect.x, j.rect.y - 10])
                     pygame.display.flip()
                     reloj.tick(10)
                 if event.key == pygame.K_DOWN:
@@ -186,22 +155,13 @@ if __name__ == '__main__':
                     j.vely=15
                     j.direccion=3
                     pantalla.blit(fondo, [f_x, f_y])
-                    pantalla.blit(conejo[j.direccion][1], [j.rect.x, j.rect.y + 8])
+                    pantalla.blit(conejo[j.direccion][1], [j.rect.x, j.rect.y + 10])
                     pygame.display.flip()
                     reloj.tick(10)
             if event.type == pygame.KEYUP:
                 j.vely=0
                 j.velx=0
         
-        ''' if j.columna == 1:
-            j.columna = 0
-        else:
-            j.columna = 1 '''
-        
-        """ if j.columna == 1:
-            j.columna = 0
-        else:
-            j.columna = 1 """
 
         # Control de fondo en x
         if j.rect.right > lim_derecho:
@@ -229,8 +189,6 @@ if __name__ == '__main__':
             f_vy = 0
 
 
-
-
         jugadores.update()
         
 
@@ -244,8 +202,6 @@ if __name__ == '__main__':
 
         # Dibujo de los elementos
         jugadores.draw(pantalla)
-        
-        
         
         pygame.display.flip()
         reloj.tick(10)
