@@ -71,26 +71,6 @@ class Jugador(pygame.sprite.Sprite):
             self.rect.right = ANCHO
         
 
-        """ self.rect.x += self.velx
-        # Control de posicion y colision con el bloque cuando el jugador se mueve en x
-        colision=pygame.sprite.spritecollide(self, self.bloques, False)
-        #print (colision)
-        for b in colision:
-            print (" For de la colision")
-            if self.velx != 0:
-                if self.rect.left < b.rect.right:
-                        self.rect.left = b.rect.right
-                        print ("< ------ ")
-                
-                if self.rect.right != b.rect.left:
-                    self.rect.right = b.rect.left
-                    print ("------ >")
-                    
-                self.velx = 0
-        
-        print ("Posicion en x: ", self.bloques) """
-        
-
 
 
         # Actualizacion de la velocidad en y
@@ -185,7 +165,7 @@ if __name__ == '__main__':
 
 
     #Cargando el fondo
-    fondo=pygame.image.load("Fondo2.png")
+    fondo=pygame.image.load("Fondo-header.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -201,7 +181,7 @@ if __name__ == '__main__':
     lim_derecho=ANCHO-100
     lim_izquierdo=100
 
-    lim_superior=100
+    lim_superior=160
     lim_inferior=ALTO-100
 
 
@@ -230,7 +210,7 @@ if __name__ == '__main__':
     b2.jugadores=jugadores
     bloques.add(b2)
     
-    b3=Bloque([0, 0], [f_ancho, 100])    # Limite superior
+    b3=Bloque([0, 0], [f_ancho, 160])    # Limite superior
     b3.jugadores=jugadores
     bloques.add(b3)
 
@@ -265,11 +245,11 @@ if __name__ == '__main__':
     b10.jugadores=jugadores
     bloques.add(b10)
 
-    b11=Bloque([4010, 195], [21, 62]) # Sprite listo
+    """ b11=Bloque([4010, 195], [21, 62], AZUL_CLARO) # Sprite listo
     b11.jugadores=jugadores
-    bloques.add(b11)
+    bloques.add(b11) """
 
-    b12=Bloque([4170, 670], [21, 62]) # Sprite listo
+    b12=Bloque([4170, 670], [21, 62], AMARILLO) # Sprite listo
     b12.jugadores=jugadores
     bloques.add(b12)
 
@@ -312,11 +292,6 @@ if __name__ == '__main__':
     
     
     
-    
-    
-    
-    
-
     # Variable velocidad de jugador y fondo
     velocidad = 40
 
@@ -392,16 +367,6 @@ if __name__ == '__main__':
             f_vy = 0
 
 
-        ''' for b in bloques:
-            if f_x > f_limite_x:
-                b.velx=f_vx
-            else:
-                b.velx=0
-            
-            if f_y > f_limite_y:
-                b.vely=f_vy
-            else:
-                b.vely=0 '''
         
         for b in bloques:
             b.velx=f_vx
@@ -409,10 +374,12 @@ if __name__ == '__main__':
             
 
         
-        
+        bloques.update()
+        jugadores.update()
         
 
         # Refresco de pantalla
+        
         
         #pantalla.fill(NEGRO)
         pantalla.blit(fondo, [f_x, f_y])
@@ -422,12 +389,11 @@ if __name__ == '__main__':
         pygame.display.flip()
         
 
-        # Dibujo de los elementos
+        # Dibujo de los elementos 
         jugadores.draw(pantalla)
         bloques.draw(pantalla)
 
-        bloques.update()
-        jugadores.update()
+        
         pygame.display.flip()
         reloj.tick(5)
         
