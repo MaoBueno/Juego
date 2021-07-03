@@ -23,11 +23,12 @@ class Jugador(pygame.sprite.Sprite):
         
         self.rect= self.image.get_rect()
         self.rect.x= 200
-        self.rect.y= 200
+        self.rect.y= 250
         self.velx=0
         self.vely=0
 
         self.bloques=pygame.sprite.Group()
+        self.zanahorias=pygame.sprite.Group()
         
 
     def update(self):
@@ -36,8 +37,8 @@ class Jugador(pygame.sprite.Sprite):
         
 
         
-        colision=pygame.sprite.spritecollide(self, self.bloques, False)     # Control de posicion y colision con el bloque cuando el jugador se mueve en x
-        for b in colision:
+        colision_con_bloque=pygame.sprite.spritecollide(self, self.bloques, False)     # Control de posicion y colision con el bloque cuando el jugador se mueve en x
+        for b in colision_con_bloque:
             if self.velx > 0:
                 if self.rect.right >= b.rect.left:
                     self.rect.right = b.rect.left
@@ -45,6 +46,17 @@ class Jugador(pygame.sprite.Sprite):
                 if self.rect.left <= b.rect.right:
                     self.rect.left = b.rect.right
             self.velx = 0
+        
+
+        colision_con_zanahoria=pygame.sprite.spritecollide(self, self.zanahorias, True)     # Control de posicion y colision con el bloque cuando el jugador se mueve en x
+        ''' for z in colision_con_zanahoria:
+            if self.velx > 0:
+                if self.rect.right >= z.rect.left:
+                    self.rect.right = z.rect.left
+            else:
+                if self.rect.left <= z.rect.right:
+                    self.rect.left = z.rect.right
+            self.velx = 0 '''
     
 
         
@@ -79,8 +91,8 @@ class Jugador(pygame.sprite.Sprite):
 
 
         # Control de posicion y colision con el bloque cuando el jugador se mueve en y
-        colision=pygame.sprite.spritecollide(self, self.bloques, False)
-        for b in colision:
+        colision_con_bloque=pygame.sprite.spritecollide(self, self.bloques, False)
+        for b in colision_con_bloque:
             if self.vely > 0:
                 if self.rect.bottom > b.rect.top:
                     self.rect.bottom = b.rect.top
@@ -88,6 +100,18 @@ class Jugador(pygame.sprite.Sprite):
                 if self.rect.top < b.rect.bottom:
                     self.rect.top = b.rect.bottom
             self.vely = 0
+
+        
+        # Control de posicion y colision con el bloque cuando el jugador se mueve en y
+        colision_con_zanahoria=pygame.sprite.spritecollide(self, self.zanahorias, True)
+        ''' for z in colision_con_zanahoria:
+            if self.vely > 0:
+                if self.rect.bottom > z.rect.top:
+                    self.rect.bottom = z.rect.top
+            else:
+                if self.rect.top < z.rect.bottom:
+                    self.rect.top = z.rect.bottom
+            self.vely = 0 '''
 
 
         # Limites en Y
@@ -107,7 +131,7 @@ class Bloque(pygame.sprite.Sprite):
     def __init__(self, pos, dim, cl=ROJO):
         pygame.sprite.Sprite.__init__(self)
         self.image=pygame.Surface(dim)
-        self.colorb= self.image.set_alpha(50)
+        self.colorb= self.image.set_alpha(0)
         self.image.fill(cl)
         self.rect= self.image.get_rect()
         self.rect.x= pos[0]
@@ -144,6 +168,55 @@ class Bloque(pygame.sprite.Sprite):
             self.vely = 0 
 
 
+class Zanahoria(pygame.sprite.Sprite):
+    def __init__(self, imagen, pos, cl=BLANCO):
+        pygame.sprite.Sprite.__init__(self)
+        self.imagen=imagen
+
+        self.columna=random.randrange(0,5)
+        self.direccion=1
+
+        self.image = self.imagen[self.direccion][self.columna]
+        #self.image.fill(cl)
+        self.rect= self.image.get_rect()
+        self.rect.x= pos[0]
+        self.rect.y= pos[1]
+        self.velx= 0
+        self.vely= 0
+        self.jugadores=pygame.sprite.Group()
+        self.bloques=pygame.sprite.Group()
+
+
+    def update(self):
+        self.rect.x += self.velx
+
+        # Control de posicion y colision con el jugador cuando el bloque se mueve en x
+        colision_con_jugador=pygame.sprite.spritecollide(self, self.jugadores, False)
+        for b in colision_con_jugador:
+            if self.velx > 0:
+                if self.rect.right > b.rect.left:
+                    self.rect.right = b.rect.left
+            else:
+                if self.rect.left < b.rect.right:
+                    self.rect.left = b.rect.right
+            self.velx = 0 
+
+        self.rect.y += self.vely
+
+        # Control de posicion y colision con el jugador cuando el bloque se mueve en x
+        colision_con_jugador=pygame.sprite.spritecollide(self, self.jugadores, False)
+        for b in colision_con_jugador:
+            if self.vely > 0:
+                if self.rect.bottom > b.rect.top:
+                    self.rect.bottom = b.rect.top
+            else:
+                if self.rect.top < b.rect.bottom:
+                    self.rect.top = b.rect.bottom
+            self.vely = 0 
+
+        colision_zanahoria_con_bloque=pygame.sprite.spritecollide(self, self.bloques, True)
+
+
 # Funcion para recortar el sprite
 def Matriz_imagen(imagenes, columnas, filas):
     info=imagenes.get_rect()
@@ -153,7 +226,7 @@ def Matriz_imagen(imagenes, columnas, filas):
     for i in range(filas):
         lista_aux=[]
         for j in range(columnas):
-            cuadro = sprite_conejo.subsurface(corte_ancho * j, corte_alto * i, corte_ancho, corte_alto)
+            cuadro = imagenes.subsurface(corte_ancho * j, corte_alto * i, corte_ancho, corte_alto)
             lista_aux.append(cuadro)
         lista.append(lista_aux)
     return lista
@@ -166,6 +239,7 @@ if __name__ == '__main__':
 
     #Cargando el fondo
     fondo=pygame.image.load("Fondo-header.png")
+    header = pygame.image.load("conejo-header2.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -187,18 +261,28 @@ if __name__ == '__main__':
 
     #Cargando sprites
     sprite_conejo = pygame.image.load('conejo.png')
+    sprite_zanahoria = pygame.image.load('zanahoria-fondo2.png')
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
+    zanahoria = Matriz_imagen(sprite_zanahoria, 6, 3)
     
 
     #Grupos
     jugadores = pygame.sprite.Group()
     bloques = pygame.sprite.Group()
+    zanahorias = pygame.sprite.Group()
+
+
+    
+
 
     # Instanciacion de elementos
     j=Jugador(conejo)
     j.bloques=bloques
+    j.zanahorias=zanahorias
     jugadores.add(j)
+
+    
 
     
     b=Bloque([0, 0], [100, f_alto])    # limite izquierdo de la pantalla
@@ -210,7 +294,7 @@ if __name__ == '__main__':
     b2.jugadores=jugadores
     bloques.add(b2)
     
-    b3=Bloque([0, 0], [f_ancho, 160])    # Limite superior
+    b3=Bloque([0, 0], [f_ancho, 170])    # Limite superior
     b3.jugadores=jugadores
     bloques.add(b3)
 
@@ -289,6 +373,13 @@ if __name__ == '__main__':
     b19=Bloque([4090, 1630], [175, 67]) # Sprite listo
     b19.jugadores=jugadores
     bloques.add(b19)
+
+    
+    limite_zanahorias =  0
+    while limite_zanahorias <= 200:
+        b=Zanahoria(zanahoria, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)], [random.randrange(255), random.randrange(255), random.randrange(255)])
+        zanahorias.add(b)
+        limite_zanahorias+=1
     
     
     
@@ -371,11 +462,16 @@ if __name__ == '__main__':
         for b in bloques:
             b.velx=f_vx
             b.vely=f_vy
+        
+        for z in zanahorias:
+            z.velx=f_vx
+            z.vely=f_vy
             
 
         
         bloques.update()
         jugadores.update()
+        zanahorias.update()
         
 
         # Refresco de pantalla
@@ -383,6 +479,7 @@ if __name__ == '__main__':
         
         #pantalla.fill(NEGRO)
         pantalla.blit(fondo, [f_x, f_y])
+        
 
         #pantalla.blit(conejo[0][0], [100, 100])
         
@@ -392,6 +489,10 @@ if __name__ == '__main__':
         # Dibujo de los elementos 
         jugadores.draw(pantalla)
         bloques.draw(pantalla)
+        zanahorias.draw(pantalla)
+        pygame.draw.rect(pantalla, [87, 111, 86], [0, 0, ANCHO, 100], 0)
+        pygame.draw.rect(pantalla, [43, 54, 42], [0, 0, ANCHO, 100], 7)
+        pantalla.blit(header, [100, 13])
 
         
         pygame.display.flip()
