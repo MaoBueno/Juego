@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 AZUL_CLARO=[76,160,233]
 VERDE_CLARO=[16, 183, 18]
@@ -33,6 +34,7 @@ class Jugador(pygame.sprite.Sprite):
 
     def update(self):
 
+
         self.rect.x += self.velx        # Actualizacion de la velocidad en x
         
 
@@ -46,17 +48,7 @@ class Jugador(pygame.sprite.Sprite):
                 if self.rect.left <= b.rect.right:
                     self.rect.left = b.rect.right
             self.velx = 0
-        
-
-        colision_con_zanahoria=pygame.sprite.spritecollide(self, self.zanahorias, True)     # Control de posicion y colision con el bloque cuando el jugador se mueve en x
-        ''' for z in colision_con_zanahoria:
-            if self.velx > 0:
-                if self.rect.right >= z.rect.left:
-                    self.rect.right = z.rect.left
-            else:
-                if self.rect.left <= z.rect.right:
-                    self.rect.left = z.rect.right
-            self.velx = 0 '''
+    
     
 
         
@@ -101,18 +93,6 @@ class Jugador(pygame.sprite.Sprite):
                     self.rect.top = b.rect.bottom
             self.vely = 0
 
-        
-        # Control de posicion y colision con el bloque cuando el jugador se mueve en y
-        colision_con_zanahoria=pygame.sprite.spritecollide(self, self.zanahorias, True)
-        ''' for z in colision_con_zanahoria:
-            if self.vely > 0:
-                if self.rect.bottom > z.rect.top:
-                    self.rect.bottom = z.rect.top
-            else:
-                if self.rect.top < z.rect.bottom:
-                    self.rect.top = z.rect.bottom
-            self.vely = 0 '''
-
 
         # Limites en Y
         if self.rect.y < 0:
@@ -121,11 +101,6 @@ class Jugador(pygame.sprite.Sprite):
         if self.rect.bottom > ALTO:
             self.rect.bottom = ALTO
         
-        
-        
-
-
-
 
 class Bloque(pygame.sprite.Sprite):
     def __init__(self, pos, dim, cl=ROJO):
@@ -217,6 +192,39 @@ class Zanahoria(pygame.sprite.Sprite):
         colision_zanahoria_con_bloque=pygame.sprite.spritecollide(self, self.bloques, True)
 
 
+class Digito(pygame.sprite.Sprite):
+    def __init__(self, imagen):
+        pygame.sprite.Sprite.__init__(self)
+        self.imagen=imagen
+
+        self.temp = 100
+        self.aux = None
+        self.d = None
+
+        self.columna=9
+        self.direccion=0
+
+        self.image=self.imagen[self.direccion][self.columna]
+        
+        self.rect= self.image.get_rect()
+        self.rect.x= 850
+        self.rect.y= 32
+
+        self.jugador=pygame.sprite.Group()
+        self.zanahoria= pygame.sprite.Group()
+
+
+        
+
+    def update(self):
+
+        self.temp -= 2
+        self.d= math.modf(self.temp/10)
+        self.aux=int(self.d[1])
+
+        self.image=self.imagen[self.direccion][self.aux]
+
+
 # Funcion para recortar el sprite
 def Matriz_imagen(imagenes, columnas, filas):
     info=imagenes.get_rect()
@@ -240,10 +248,10 @@ if __name__ == '__main__':
     #Cargando el fondo
     fondo=pygame.image.load("Fondo-header.png")
     header = pygame.image.load("conejo-header2.png")
+    tiempo = pygame.image.load("tiempo.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
-    print("Propiedades del fondo: ", f_ancho, f_alto)
     f_x=0
     f_vx=0
     f_limite_x= ANCHO - f_ancho
@@ -262,19 +270,21 @@ if __name__ == '__main__':
     #Cargando sprites
     sprite_conejo = pygame.image.load('conejo.png')
     sprite_zanahoria = pygame.image.load('zanahoria-fondo2.png')
+    sprite_digito= pygame.image.load('digito.png')
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
     zanahoria = Matriz_imagen(sprite_zanahoria, 6, 3)
-    
+    digito = Matriz_imagen(sprite_digito, 10, 1)
 
+    
     #Grupos
     jugadores = pygame.sprite.Group()
     bloques = pygame.sprite.Group()
     zanahorias = pygame.sprite.Group()
+    digitos = pygame.sprite.Group()
 
 
     
-
 
     # Instanciacion de elementos
     j=Jugador(conejo)
@@ -282,6 +292,11 @@ if __name__ == '__main__':
     j.zanahorias=zanahorias
     jugadores.add(j)
 
+
+    d=Digito(digito)
+    d.jugador = jugadores
+    d.zanahoria = zanahorias
+    digitos.add(d)
     
 
     
@@ -466,12 +481,21 @@ if __name__ == '__main__':
         for z in zanahorias:
             z.velx=f_vx
             z.vely=f_vy
-            
-
         
+
+        for j in jugadores:
+            colision_conejo_zanahoria=pygame.sprite.spritecollide(j, zanahorias, True)
+            for z in colision_conejo_zanahoria:
+                d.temp = 100
+
+        if d.temp <= 0:
+            fin_juego=True
+        
+
         bloques.update()
         jugadores.update()
         zanahorias.update()
+        digitos.update()
         
 
         # Refresco de pantalla
@@ -492,7 +516,11 @@ if __name__ == '__main__':
         zanahorias.draw(pantalla)
         pygame.draw.rect(pantalla, [87, 111, 86], [0, 0, ANCHO, 100], 0)
         pygame.draw.rect(pantalla, [43, 54, 42], [0, 0, ANCHO, 100], 7)
+        digitos.draw(pantalla)
+        pantalla.blit(tiempo, [660, 26])
         pantalla.blit(header, [100, 13])
+
+    
 
         
         pygame.display.flip()
