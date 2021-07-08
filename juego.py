@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import time
 
 AZUL_CLARO=[76,160,233]
 VERDE_CLARO=[16, 183, 18]
@@ -148,8 +149,8 @@ class Zanahoria(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
-        self.columna=random.randrange(0,5)
-        self.direccion=1
+        self.columna=0
+        self.direccion=0
 
         self.image = self.imagen[self.direccion][self.columna]
         #self.image.fill(cl)
@@ -189,7 +190,7 @@ class Zanahoria(pygame.sprite.Sprite):
                     self.rect.top = b.rect.bottom
             self.vely = 0 
 
-        colision_zanahoria_con_bloque=pygame.sprite.spritecollide(self, self.bloques, True)
+        
 
 
 class Digito(pygame.sprite.Sprite):
@@ -197,7 +198,7 @@ class Digito(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
-        self.temp = 100
+        self.temp = 1000
         self.aux = None
         self.d = None
 
@@ -219,7 +220,7 @@ class Digito(pygame.sprite.Sprite):
     def update(self):
 
         self.temp -= 2
-        self.d= math.modf(self.temp/10)
+        self.d= math.modf(self.temp/100)
         self.aux=int(self.d[1])
 
         self.image=self.imagen[self.direccion][self.aux]
@@ -248,7 +249,9 @@ if __name__ == '__main__':
     #Cargando el fondo
     fondo=pygame.image.load("Fondo-header.png")
     header = pygame.image.load("conejo-header2.png")
+    gameover = pygame.image.load("gameover.png")
     tiempo = pygame.image.load("tiempo.png")
+    cueva = pygame.image.load("cueva2.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -269,11 +272,11 @@ if __name__ == '__main__':
 
     #Cargando sprites
     sprite_conejo = pygame.image.load('conejo.png')
-    sprite_zanahoria = pygame.image.load('zanahoria-fondo2.png')
+    sprite_zanahoria = pygame.image.load('z2.png')
     sprite_digito= pygame.image.load('digito.png')
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
-    zanahoria = Matriz_imagen(sprite_zanahoria, 6, 3)
+    zanahoria = Matriz_imagen(sprite_zanahoria, 1, 1)
     digito = Matriz_imagen(sprite_digito, 10, 1)
 
     
@@ -396,10 +399,18 @@ if __name__ == '__main__':
         zanahorias.add(b)
         limite_zanahorias+=1
     
+    for w in zanahorias:
+        if w.rect.bottom >= 1160 and w.rect.top <= 1280:
+            zanahorias.remove(w)
+            print ("Elimine 1")
+    
+    colision_zanahoria_con_bloque=pygame.sprite.groupcollide(zanahorias, bloques, True, False, collided = None)
+    
+        
     
     
     # Variable velocidad de jugador y fondo
-    velocidad = 40
+    velocidad = 35
 
     reloj=pygame.time.Clock()
     fin_juego=False
@@ -486,9 +497,12 @@ if __name__ == '__main__':
         for j in jugadores:
             colision_conejo_zanahoria=pygame.sprite.spritecollide(j, zanahorias, True)
             for z in colision_conejo_zanahoria:
-                d.temp = 100
+                d.temp = 1000
 
         if d.temp <= 0:
+            pantalla.blit(gameover, [260, 68])
+            pygame.display.flip()
+            time.sleep(10)
             fin_juego=True
         
 
@@ -519,6 +533,7 @@ if __name__ == '__main__':
         digitos.draw(pantalla)
         pantalla.blit(tiempo, [660, 26])
         pantalla.blit(header, [100, 13])
+        pantalla.blit(cueva, [400, 300])
 
     
 
