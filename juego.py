@@ -3,6 +3,9 @@ import random
 import math
 import time
 
+from pygame.draw import circle
+from pygame.sprite import collide_circle, collide_circle_ratio
+
 AZUL_CLARO=[76,160,233]
 VERDE_CLARO=[16, 183, 18]
 NEGRO=[0,0,0]
@@ -261,6 +264,117 @@ class Lobo(pygame.sprite.Sprite):
             if l.rect.right < 0:
                 lobos.remove(l) '''
 
+class Perro(pygame.sprite.Sprite):
+    def __init__(self, imagen, pos, cl=BLANCO):
+        pygame.sprite.Sprite.__init__(self)
+        self.imagen=imagen
+
+        self.columna=0
+        self.direccion=2
+
+        self.image = self.imagen[self.direccion][self.columna]
+
+        self.rect= self.image.get_rect()
+        self.rect.x= pos[0]
+        self.rect.y= pos[1]
+        self.velx=0
+        self.vely=0
+        self.disparar=False
+        self.temp=0
+        
+        self.bloques=pygame.sprite.Group()
+
+        self.orientacion = 0
+        self.radius = 300
+    
+    '''  def Deteccion(self, pos_final):
+        self.a = (pos_final[1] - self.rect.y) / (pos_final[0] - self.rect.x)
+        self.b = pos_final[1] - (self.a * pos_final[0]) '''
+    
+
+    def update(self):
+        
+        
+        
+        self.rect.x += self.velx + f_vx
+
+        colision_perro_bloques=pygame.sprite.spritecollide(self, self.bloques, False)
+        for b in colision_perro_bloques:
+            if self.velx > 0:
+                if self.rect.right > b.rect.left:
+                    self.rect.right = b.rect.left
+                    self.direccion = random.randrange(0, 3)
+            else:
+                if self.rect.left < b.rect.right:
+                    self.rect.left = b.rect.right
+                    self.direccion = random.randrange(0, 3)
+            #self.velx = 0
+        
+
+        if self.direccion == 0:
+            self.velx = -random.randrange(10, 15) 
+            self.vely = f_vy
+        elif self.direccion == 1:
+            self.velx = random.randrange(10, 15) 
+            self.vely = f_vy
+        elif self.direccion == 2:
+            self.velx = f_vx
+            self.vely = random.randrange(10, 15) 
+        elif self.direccion == 3:
+            self.velx = f_vx
+            self.vely = -(random.randrange(10, 15)) 
+
+        
+        if self.direccion == 4 or self.direccion == 5 or self.direccion == 6 or self.direccion == 7:
+            self.velx = f_vx
+            
+
+        if self.columna < 4:
+            self.columna+=1
+        else:
+            self.columna = 0
+
+        if self.direccion == 2 or self.direccion == 3 or self.direccion == 6 or self.direccion == 7:
+            self.image=pygame.transform.rotate(self.imagen[self.direccion][self.columna], 90)
+        else:
+            self.image=self.imagen[self.direccion][self.columna]
+
+
+        
+
+        
+
+        self.rect.y += self.vely + f_vy
+
+        colision_perro_bloque=pygame.sprite.spritecollide(self, self.bloques, False)
+        for b in colision_perro_bloque:
+            if self.vely > 0:
+                if self.rect.bottom > b.rect.top:
+                    self.rect.bottom = b.rect.top
+                    self.direccion = random.randrange(0, 3)
+            else:
+                if self.rect.top < b.rect.bottom:
+                    self.rect.top = b.rect.bottom
+                    self.direccion = random.randrange(0, 3)
+            #self.vely = 0
+        
+        if self.direccion == 0:
+            self.velx = -random.randrange(15, 30)
+            self.vely = f_vy
+        elif self.direccion == 1:
+            self.velx = random.randrange(15, 30)
+            self.vely = f_vy
+        elif self.direccion == 2:
+            self.velx = f_vx
+            self.vely = random.randrange(15, 30)
+        elif self.direccion == 3:
+            self.velx = f_vx
+            self.vely = -(random.randrange(15, 30))
+
+        if self.direccion == 4 or self.direccion == 5 or self.direccion == 6 or self.direccion == 7:
+            self.vely = f_vy
+
+
 # Funcion para recortar el sprite
 def Matriz_imagen(imagenes, columnas, filas):
     info=imagenes.get_rect()
@@ -310,12 +424,14 @@ if __name__ == '__main__':
     sprite_zanahoria = pygame.image.load('z2.png')
     sprite_digito= pygame.image.load('digito.png')
     sprite_lobo = pygame.image.load('wolf.png')
+    sprite_perro = pygame.image.load('perro.png')
 
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
     zanahoria = Matriz_imagen(sprite_zanahoria, 1, 1)
     digito = Matriz_imagen(sprite_digito, 10, 1)
     lobo = Matriz_imagen(sprite_lobo, 6, 4)
+    perro = Matriz_imagen(sprite_perro, 5, 8)
 
     
     #Grupos
@@ -324,6 +440,7 @@ if __name__ == '__main__':
     zanahorias = pygame.sprite.Group()
     digitos = pygame.sprite.Group()
     lobos = pygame.sprite.Group()
+    perros = pygame.sprite.Group()
 
 
     
@@ -341,11 +458,13 @@ if __name__ == '__main__':
     digitos.add(d)
 
 
-    limite_lobos =  0
+    """ limite_lobos =  0
     while limite_lobos <= 15:
         l=Lobo(lobo, [random.randrange(-1000, -50), (random.randrange(100, 500))])
         lobos.add(l)
-        limite_lobos+=1
+        limite_lobos+=1 """
+    
+
 
     
 
@@ -453,7 +572,13 @@ if __name__ == '__main__':
     colision_zanahoria_con_bloque=pygame.sprite.groupcollide(zanahorias, bloques, True, False, collided = None)     # Elimina las zanahrias de los arbustos
     
     
-        
+    limite_perros = 0
+    while limite_perros <= 300:
+        p= Perro(perro, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)], [random.randrange(255), random.randrange(255), random.randrange(255)])
+        perros.add(p)
+        p.bloques = bloques
+        p.direccion = random.randrange(4, 8)
+        limite_perros+=1
     
     
     
@@ -573,6 +698,39 @@ if __name__ == '__main__':
         
         ''' for l in lobos:
             l.velx = f_vx  '''
+
+
+        # Deteccion del conejo por parte del perro
+        for p in perros:
+            deteccion = pygame.sprite.collide_circle(p, j)
+            if deteccion:
+                #p.Deteccion(j.rect)
+                if p.direccion == 4:
+                    p.direccion = 0
+                    p.velx = -random.randrange(15, 30) 
+                    p.vely = 0
+                elif p.direccion == 5:
+                    p.direccion = 1
+                    p.velx = random.randrange(15, 30)
+                    p.vely = 0
+                elif p.direccion == 6:
+                    p.direccion = 2
+                    p.velx = 0
+                    p.vely = random.randrange(15, 30)
+                elif p.direccion == 7:
+                    p.direccion = 3
+                    p.velx = 0
+                    p.vely = -(random.randrange(15, 30))
+            else:
+                if p.direccion == 0:
+                    p.direccion = 4
+                elif p.direccion == 1:
+                    p.direccion = 5
+                elif p.direccion == 2:
+                    p.direccion = 6
+                elif p.direccion == 3:
+                    p.direccion = 7
+            
         
             
         
@@ -582,6 +740,7 @@ if __name__ == '__main__':
         zanahorias.update()
         digitos.update()
         lobos.update()
+        perros.update()
         
 
         # Refresco de pantalla
@@ -600,7 +759,7 @@ if __name__ == '__main__':
         zanahorias.draw(pantalla)
         jugadores.draw(pantalla)
         bloques.draw(pantalla)
-        
+        perros.draw(pantalla)
         lobos.draw(pantalla)
         pygame.draw.rect(pantalla, [87, 111, 86], [0, 0, ANCHO, 100], 0)
         pygame.draw.rect(pantalla, [43, 54, 42], [0, 0, ANCHO, 100], 7)
