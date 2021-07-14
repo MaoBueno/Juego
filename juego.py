@@ -251,7 +251,7 @@ class Digito(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
-        self.temp = 1000
+        self.temp = 100
         self.aux = None
         self.d = None
 
@@ -273,7 +273,7 @@ class Digito(pygame.sprite.Sprite):
     def update(self):
 
         self.temp -= 2
-        self.d= math.modf(self.temp/100)
+        self.d= math.modf(self.temp/10)
         self.aux=int(self.d[1])
 
         self.image=self.imagen[self.direccion][self.aux]
@@ -474,7 +474,8 @@ if __name__ == '__main__':
 
     #Cargando el fondo
     fondo=pygame.image.load("Fondo-header.png")
-    gameover = pygame.image.load("gameover.png")
+    gameover = pygame.image.load("gameover2.png")
+    ganar = pygame.image.load("ganar.png")
     tiempo = pygame.image.load("tiempo.png")
     #cueva = pygame.image.load("cueva2.png")
     info=fondo.get_rect()
@@ -770,7 +771,7 @@ if __name__ == '__main__':
         for j in jugadores:
             colision_conejo_zanahoria=pygame.sprite.spritecollide(j, zanahorias, True)
             for z in colision_conejo_zanahoria:
-                d.temp = 1000
+                d.temp = 100
                 n=random.randrange(100)
                 if n < 30:
                     #=Zanahoria_win(zanahoria_win, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)])
@@ -805,11 +806,7 @@ if __name__ == '__main__':
                 w.aux = True
                 posicion_auxiliar+=30
 
-        if d.temp <= 0:
-            pantalla.blit(gameover, [260, 68])
-            pygame.display.flip()
-            time.sleep(10)
-            fin_juego=True
+        
         
         ''' colision_lobo = pygame.sprite.groupcollide(lobos, jugadores, False, False)
         for f in colision_lobo:
@@ -869,20 +866,29 @@ if __name__ == '__main__':
         for p in perros:
             colision_conejo_perro = pygame.sprite.spritecollide(p, jugadores, False)
             if colision_conejo_perro:
-                j.vidas+=1
+                
                 v.aux -=15
                 
                 
         for v in vidas:
             if v.rect.x > v.aux:
                 vidas.remove(v)
+                j.vidas-=1
                 
                 
         
                 
         
+        if j.vidas <= 0:
+            fin_juego= True
         
+
+        if j.win == 3:
+            fin_juego= True
         
+
+        if d.temp <= 0:
+            fin_juego=True
         
             
         
@@ -955,7 +961,24 @@ if __name__ == '__main__':
         if f_y >= 0:
             f_y = 0
 
-
+    
+    if j.vidas <= 0 or d.temp <= 0:
+        pantalla.blit(gameover, [0, 0])
+        pygame.display.flip()
+    elif j.win >= 3:
+        pantalla.blit(ganar, [0, 0])
+        pygame.display.flip()
+    
+    
+    
+    ''' if fin_juego == False:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    fin_juego = False
+                    print ("Vuelvo a jugar")
+                    print (fin_juego) '''
+    
     while not fin:      #Ciclo de finalizacion
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
