@@ -738,13 +738,13 @@ if __name__ == '__main__':
                 event.pos
                 pantalla.blit(opciones, [0, 0])
                 pygame.display.flip()
-                if (event.pos[0] >= 350 and event.pos[0] <= 560) and (event.pos[1] >= 220 and event.pos[1] <= 270):
+                if (event.pos[0] >= 305 and event.pos[0] <= 685) and (event.pos[1] >= 220 and event.pos[1] <= 270):
                     menu = 1
-                elif (event.pos[0] >= 290 and event.pos[0] <= 680) and (event.pos[1] >= 300 and event.pos[1] <= 355):
+                elif (event.pos[0] >= 305 and event.pos[0] <= 685) and (event.pos[1] >= 305 and event.pos[1] <= 350):
                     pantalla.blit(instrucciones, [0, 0])
                     pygame.display.flip()
                     menu2 == 1
-                elif (event.pos[0] >= 355 and event.pos[0] <= 570) and (event.pos[1] >= 385 and event.pos[1] <= 425):
+                elif (event.pos[0] >= 305 and event.pos[0] <= 685) and (event.pos[1] >= 395 and event.pos[1] <= 425):
                     menu = 1
                     fin = True
     
