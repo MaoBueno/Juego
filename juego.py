@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 import time
+import threading
 
 from pygame.draw import circle
 from pygame.sprite import collide_circle, collide_circle_ratio, spritecollide
@@ -251,7 +252,7 @@ class Digito(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
-        self.temp = 100
+        self.temp = 1000
         self.aux = None
         self.d = None
 
@@ -273,13 +274,13 @@ class Digito(pygame.sprite.Sprite):
     def update(self):
 
         self.temp -= 2
-        self.d= math.modf(self.temp/10)
+        self.d= math.modf(self.temp/100)
         self.aux=int(self.d[1])
 
         self.image=self.imagen[self.direccion][self.aux]
 
 class Lobo(pygame.sprite.Sprite):
-    def __init__(self, imagen, pos, cl=BLANCO):
+    def __init__(self, imagen, pos):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
@@ -293,26 +294,34 @@ class Lobo(pygame.sprite.Sprite):
         self.rect.y= pos[1]
         self.velx=30
         self.vely=0
-        self.disparar=False
-        self.temp=100
+        self.salir=False
+        
+        self.temp=random.randrange(500, 700)
     
 
     def update(self):
+        self.temp-=1
+        if self.temp <= 0:
+            self.salir = True
+        
+
         self.image=self.imagen[self.direccion][self.columna]
         if self.columna < 5:
             self.columna+=1
         else:
             self.columna = 0
 
-        self.rect.x += self.velx
+        self.rect.x += self.velx + f_vx
 
         for l in lobos:
-            if l.rect.left > ANCHO:
+            if l.rect.left > f_ancho:
                 lobos.remove(l)
         
         ''' for l in lobos:
             if l.rect.right < 0:
                 lobos.remove(l) '''
+        
+        self.rect.y += self.vely + f_vy
 
 class Perro(pygame.sprite.Sprite):
     def __init__(self, imagen, pos, cl=BLANCO):
@@ -451,6 +460,33 @@ class Vida(pygame.sprite.Sprite):
         self.image = self.imagen[self.direccion][self.columna]
 
 
+class Piedra(pygame.sprite.Sprite):
+    def __init__(self, imagen):
+        pygame.sprite.Sprite.__init__(self)
+        self.imagen=imagen
+
+        self.columna=0
+        self.direccion=0
+
+        self.image=self.imagen[self.direccion][self.columna]
+        
+        self.rect= self.image.get_rect()
+        self.rect.x= 0
+        self.rect.y= 150
+
+        self.velx = f_vx
+        self.vely = f_vy
+
+        self.temp = random.randrange(50, 200)
+        self.crear = False
+
+    def update(self):
+        self.temp -= 1
+        if self.temp <= 0:
+            self.crear=True
+
+        self.image=self.imagen[self.direccion][self.columna]
+
 
 # Funcion para recortar el sprite
 def Matriz_imagen(imagenes, columnas, filas):
@@ -467,6 +503,18 @@ def Matriz_imagen(imagenes, columnas, filas):
     return lista
 
 
+''' def Salir(fin_juego):
+    while not fin_juego:
+        time.sleep(random.randrange(5, 10))
+        limite_lobos =  0
+        while limite_lobos <= 15:
+            l=Lobo(lobo, [random.randrange(-1000, -50), (random.randrange(100, 500))])
+            lobos.add(l)
+            limite_lobos+=1 '''
+    
+
+
+
 if __name__ == '__main__':
     pygame.init()
     pantalla = pygame.display.set_mode([ANCHO, ALTO])       # Creacion de la ventana de juego
@@ -477,7 +525,6 @@ if __name__ == '__main__':
     gameover = pygame.image.load("gameover2.png")
     ganar = pygame.image.load("ganar.png")
     tiempo = pygame.image.load("tiempo.png")
-    #cueva = pygame.image.load("cueva2.png")
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -504,6 +551,7 @@ if __name__ == '__main__':
     sprite_perro = pygame.image.load('perro.png')
     sprite_vidas_conejo = pygame.image.load("conejo-header2.png")
     sprite_zanahoria_win = pygame.image.load('win.png')
+    sprite_piedra = pygame.image.load('madriguera.png')
 
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
@@ -513,6 +561,7 @@ if __name__ == '__main__':
     perro = Matriz_imagen(sprite_perro, 5, 8)
     vidas_conejo = Matriz_imagen(sprite_vidas_conejo, 1, 1)
     zanahoria_win = Matriz_imagen(sprite_zanahoria_win, 6, 3)
+    piedra = Matriz_imagen(sprite_piedra, 1, 1)
 
     
     #Grupos
@@ -525,9 +574,11 @@ if __name__ == '__main__':
     vidas = pygame.sprite.Group()
     zanahorias_win = pygame.sprite.Group()
     zanahorias2_win = pygame.sprite.Group()
+    piedras = pygame.sprite.Group()
 
 
-    
+    p=Piedra(piedra)
+    piedras.add(p)
 
     # Instanciacion de elementos
     j=Jugador(conejo)
@@ -549,16 +600,9 @@ if __name__ == '__main__':
         vidas.add(v)
         limite_vidas+=1
         posicion_vidas+=50
-
-
-    """ limite_lobos =  0
-    while limite_lobos <= 15:
-        l=Lobo(lobo, [random.randrange(-1000, -50), (random.randrange(100, 500))])
-        lobos.add(l)
-        limite_lobos+=1 """
     
 
-
+    
     
 
     
@@ -653,7 +697,7 @@ if __name__ == '__main__':
 
     
     limite_zanahorias =  0
-    while limite_zanahorias <= 200:
+    while limite_zanahorias <= 300:
         b=Zanahoria(zanahoria, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)])
         zanahorias.add(b)
         limite_zanahorias+=1
@@ -666,14 +710,14 @@ if __name__ == '__main__':
     
     
     limite_perros = 0
-    while limite_perros <= 300:
+    while limite_perros <= 150:
         p= Perro(perro, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)], [random.randrange(255), random.randrange(255), random.randrange(255)])
         perros.add(p)
         p.bloques = bloques
         p.direccion = random.randrange(4, 8)
         limite_perros+=1
     
-
+    
     
 
     
@@ -684,6 +728,9 @@ if __name__ == '__main__':
     reloj=pygame.time.Clock()
     fin_juego=False
     fin=False
+
+    ''' hilo = threading.Thread(target = Salir, args=(fin_juego,))
+    hilo.start() '''
 
     while (not fin) and (not fin_juego):
         for event in pygame.event.get():
@@ -768,15 +815,22 @@ if __name__ == '__main__':
             z.vely=f_vy
         
         
+        
         for j in jugadores:
             colision_conejo_zanahoria=pygame.sprite.spritecollide(j, zanahorias, True)
             for z in colision_conejo_zanahoria:
-                d.temp = 100
+                d.temp = 1000
                 n=random.randrange(100)
-                if n < 30:
-                    #=Zanahoria_win(zanahoria_win, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)])
-                    w=Zanahoria_win(zanahoria_win, [random.randrange(lim_izquierdo, ANCHO), random.randrange(lim_superior, ALTO)])
+                if n < 100:
+                    w=Zanahoria_win(zanahoria_win, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)])
+                    #w=Zanahoria_win(zanahoria_win, [random.randrange(lim_izquierdo, ANCHO), random.randrange(lim_superior, ALTO)])
                     zanahorias_win.add(w)
+                if n < 20:
+                    limite_lobos =  0
+                    while limite_lobos <= 10:
+                        l=Lobo(lobo, [random.randrange(-1000, -50), (random.randrange(lim_superior, f_alto - 100))])
+                        lobos.add(l)
+                        limite_lobos+=1
         
         
         for zw in zanahorias_win:
@@ -816,13 +870,18 @@ if __name__ == '__main__':
             print ("Comida") '''
         
         for h in lobos:
-            colision_lobo = pygame.sprite.spritecollide(h, jugadores, True)
+            colision_lobo = pygame.sprite.spritecollide(h, jugadores, False)
             for f in colision_lobo:
                 h.velx = 0
                 if h.direccion == 0:
                     h.direccion = 2
                 else:
                     h.direccion = 3
+                if j.direccion == 0 or j.direccion == 1:
+                    j.direccion = 5
+                elif j.direccion == 2 or j.direccion == 3 :
+                    j.direccion = 4
+                j.vidas -= 3
         
         
         
@@ -866,8 +925,12 @@ if __name__ == '__main__':
         for p in perros:
             colision_conejo_perro = pygame.sprite.spritecollide(p, jugadores, False)
             if colision_conejo_perro:
-                
                 v.aux -=15
+                if j.direccion == 0 or j.direccion == 1:
+                    j.direccion = 5
+                elif j.direccion == 2 or j.direccion == 3 :
+                    j.direccion = 4
+                
                 
                 
         for v in vidas:
@@ -902,6 +965,7 @@ if __name__ == '__main__':
         vidas.update()
         zanahorias_win.update()
         zanahorias2_win.update()
+        piedras.update()
         
 
         # Refresco de pantalla
@@ -924,14 +988,15 @@ if __name__ == '__main__':
         bloques.draw(pantalla)
         perros.draw(pantalla)
         lobos.draw(pantalla)
+        zanahorias_win.draw(pantalla)
         pygame.draw.rect(pantalla, [87, 111, 86], [0, 0, ANCHO, 100], 0)
         pygame.draw.rect(pantalla, [43, 54, 42], [0, 0, ANCHO, 100], 7)
         digitos.draw(pantalla)
         pantalla.blit(tiempo, [660, 26])
         #pantalla.blit(header, [100, 13])
-        #pantalla.blit(cueva, [400, 300])
+        #piedras.draw(pantalla)
         vidas.draw(pantalla)
-        zanahorias_win.draw(pantalla)
+        
         zanahorias2_win.draw(pantalla)
         
 
