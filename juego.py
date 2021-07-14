@@ -460,8 +460,8 @@ class Vida(pygame.sprite.Sprite):
         self.image = self.imagen[self.direccion][self.columna]
 
 
-class Piedra(pygame.sprite.Sprite):
-    def __init__(self, imagen):
+class Tren(pygame.sprite.Sprite):
+    def __init__(self, imagen, pos):
         pygame.sprite.Sprite.__init__(self)
         self.imagen=imagen
 
@@ -471,21 +471,19 @@ class Piedra(pygame.sprite.Sprite):
         self.image=self.imagen[self.direccion][self.columna]
         
         self.rect= self.image.get_rect()
-        self.rect.x= 0
-        self.rect.y= 150
+        self.rect.x= pos[0]
+        self.rect.y= pos[1]
 
-        self.velx = f_vx
-        self.vely = f_vy
+        self.velx = 0
+        self.vely = 0
 
-        self.temp = random.randrange(50, 200)
-        self.crear = False
 
     def update(self):
-        self.temp -= 1
-        if self.temp <= 0:
-            self.crear=True
+        self.rect.x += self.velx + f_vx
 
         self.image=self.imagen[self.direccion][self.columna]
+
+        self.rect.y += f_vy
 
 
 # Funcion para recortar el sprite
@@ -555,6 +553,7 @@ if __name__ == '__main__':
     sprite_vidas_conejo = pygame.image.load("conejo-header2.png")
     sprite_zanahoria_win = pygame.image.load('win.png')
     sprite_piedra = pygame.image.load('madriguera.png')
+    sprite_tren = pygame.image.load('tren.png')
 
 
     conejo = Matriz_imagen(sprite_conejo, 2, 6)
@@ -565,6 +564,7 @@ if __name__ == '__main__':
     vidas_conejo = Matriz_imagen(sprite_vidas_conejo, 1, 1)
     zanahoria_win = Matriz_imagen(sprite_zanahoria_win, 6, 3)
     piedra = Matriz_imagen(sprite_piedra, 1, 1)
+    tren = Matriz_imagen(sprite_tren, 1, 2)
 
     
     #Grupos
@@ -578,10 +578,9 @@ if __name__ == '__main__':
     zanahorias_win = pygame.sprite.Group()
     zanahorias2_win = pygame.sprite.Group()
     piedras = pygame.sprite.Group()
+    trenes = pygame.sprite.Group()
 
 
-    p=Piedra(piedra)
-    piedras.add(p)
 
     # Instanciacion de elementos
     j=Jugador(conejo)
@@ -603,8 +602,6 @@ if __name__ == '__main__':
         vidas.add(v)
         limite_vidas+=1
         posicion_vidas+=50
-    
-
     
     
 
@@ -713,7 +710,7 @@ if __name__ == '__main__':
     
     
     limite_perros = 0
-    while limite_perros <= 150:
+    while limite_perros <= 50:
         p= Perro(perro, [random.randrange(lim_izquierdo, f_ancho - 100), random.randrange(lim_superior, f_alto - 100)], [random.randrange(255), random.randrange(255), random.randrange(255)])
         perros.add(p)
         p.bloques = bloques
@@ -855,6 +852,17 @@ if __name__ == '__main__':
                         limite_lobos+=1
         
         
+        
+        for j in jugadores:
+            if j.rect.y > 200 and j.rect.y < 800:
+                h=random.randrange(100)
+                if h < 10:
+                    t=Tren(tren, [f_ancho, 1132])
+                    trenes.add(t)
+                    t.velx = - 60
+                    print ("Tren")
+        
+        
         for zw in zanahorias_win:
             if zw.aux == False:
                 zw.velx=f_vx
@@ -988,6 +996,7 @@ if __name__ == '__main__':
         zanahorias_win.update()
         zanahorias2_win.update()
         piedras.update()
+        trenes.update()
         
 
         # Refresco de pantalla
@@ -1014,6 +1023,7 @@ if __name__ == '__main__':
         pygame.draw.rect(pantalla, [87, 111, 86], [0, 0, ANCHO, 100], 0)
         pygame.draw.rect(pantalla, [43, 54, 42], [0, 0, ANCHO, 100], 7)
         digitos.draw(pantalla)
+        trenes.draw(pantalla)
         pantalla.blit(tiempo, [660, 26])
         #pantalla.blit(header, [100, 13])
         #piedras.draw(pantalla)
