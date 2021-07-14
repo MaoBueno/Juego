@@ -525,6 +525,9 @@ if __name__ == '__main__':
     gameover = pygame.image.load("gameover2.png")
     ganar = pygame.image.load("ganar.png")
     tiempo = pygame.image.load("tiempo.png")
+    opciones = pygame.image.load("opciones.png")
+    instrucciones = pygame.image.load('instrucciones.png')
+
     info=fondo.get_rect()
     f_ancho=info[2]
     f_alto=info[3]
@@ -724,13 +727,32 @@ if __name__ == '__main__':
     posicion_auxiliar= 400
     # Variable velocidad de jugador y fondo
     velocidad = 35
-
+    menu = 0
+    menu2 = 0
     reloj=pygame.time.Clock()
     fin_juego=False
     fin=False
+    
+    while menu == 0 and menu2 == 0:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                fin = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                event.pos
+                pantalla.blit(opciones, [0, 0])
+                pygame.display.flip()
+                if (event.pos[0] >= 350 and event.pos[0] <= 560) and (event.pos[1] >= 220 and event.pos[1] <= 270):
+                    menu = 1
+                elif (event.pos[0] >= 290 and event.pos[0] <= 680) and (event.pos[1] >= 300 and event.pos[1] <= 355):
+                    pantalla.blit(instrucciones, [0, 0])
+                    pygame.display.flip()
+                    menu2 == 1
+                elif (event.pos[0] >= 355 and event.pos[0] <= 570) and (event.pos[1] >= 385 and event.pos[1] <= 425):
+                    menu = 1
+                    fin = True
+    
+    pygame.display.flip()
 
-    ''' hilo = threading.Thread(target = Salir, args=(fin_juego,))
-    hilo.start() '''
 
     while (not fin) and (not fin_juego):
         for event in pygame.event.get():
@@ -1035,14 +1057,6 @@ if __name__ == '__main__':
         pygame.display.flip()
     
     
-    
-    ''' if fin_juego == False:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    fin_juego = False
-                    print ("Vuelvo a jugar")
-                    print (fin_juego) '''
     
     while not fin:      #Ciclo de finalizacion
         for event in pygame.event.get():
